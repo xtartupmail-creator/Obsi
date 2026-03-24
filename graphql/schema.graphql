@@ -1,0 +1,27 @@
+"""Root query fields for request/response operations."""
+type Query {
+  observation(id: ID!): Observation
+  observations(limit: Int = 50): [Observation!]!
+}
+
+"""Event stream fields for push-based updates."""
+type Subscription {
+  """
+  Canonical stream for newly ingested observations.
+  Emits one Observation event at a time.
+  """
+  newObservation: Observation!
+
+  """
+  Backward-compatible alias for `newObservation`.
+  Deprecated to avoid duplicate subscription semantics.
+  """
+  liveObservations: Observation! @deprecated(reason: "Use newObservation")
+}
+
+type Observation {
+  id: ID!
+  source: String!
+  value: Float!
+  observedAt: String!
+}
