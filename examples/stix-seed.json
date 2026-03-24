@@ -1,0 +1,31 @@
+{
+  "type": "bundle",
+  "id": "bundle--0bff4e54-23d8-45c8-95b9-2ea7587b95d2",
+  "objects": [
+    {
+      "type": "attack-pattern",
+      "spec_version": "2.1",
+      "id": "attack-pattern--7b3b4d3e-92a1-4f7f-84f4-1007fb1f7d2f",
+      "created": "2026-03-24T00:00:00.000Z",
+      "modified": "2026-03-24T00:00:00.000Z",
+      "name": "Exploit Public-Facing Application",
+      "external_references": [
+        {
+          "source_name": "mitre-attack",
+          "external_id": "T1190",
+          "url": "https://attack.mitre.org/techniques/T1190/"
+        }
+      ]
+    },
+    {
+      "type": "identity",
+      "spec_version": "2.1",
+      "id": "identity--0c7d5f0f-ae4f-4f24-9bf9-2495f4642f4e",
+      "created": "2026-03-24T00:00:00.000Z",
+      "modified": "2026-03-24T00:00:00.000Z",
+      "name": "External Sensor Agent",
+      "identity_class": "system",
+      "x_internal_agent_id": "EXT-01"
+    }
+  ]
+}
