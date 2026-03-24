@@ -1,0 +1,68 @@
+openapi: 3.1.0
+info:
+  title: Agent API
+  version: 1.0.0
+paths:
+  /agents:
+    post:
+      summary: Create an agent-backed STIX identity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentCreateRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentResponse'
+components:
+  schemas:
+    AgentCreateRequest:
+      type: object
+      required: [id, type, agent_id, name]
+      properties:
+        id:
+          type: string
+          description: >-
+            STIX identifier for the object. Must use `object-type--<RFC4122 UUID>`,
+            e.g. `identity--0c7d5f0f-ae4f-4f24-9bf9-2495f4642f4e`.
+          pattern: '^[a-z][a-z0-9-]*--[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
+        type:
+          type: string
+          enum: [identity]
+          description: STIX object type that must match the id prefix.
+        agent_id:
+          type: string
+          description: Internal human-readable agent identifier (non-STIX), e.g. `EXT-01`.
+          example: EXT-01
+        name:
+          type: string
+        external_references:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExternalReference'
+    ExternalReference:
+      type: object
+      required: [source_name]
+      properties:
+        source_name:
+          type: string
+        external_id:
+          type: string
+          description: External catalog identifier, e.g. ATT&CK technique id `T1190`.
+        url:
+          type: string
+          format: uri
+    AgentResponse:
+      allOf:
+        - $ref: '#/components/schemas/AgentCreateRequest'
+        - type: object
+          required: [created_at]
+          properties:
+            created_at:
+              type: string
+              format: date-time
