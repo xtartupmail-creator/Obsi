@@ -1,0 +1,50 @@
+name: CI
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: app
+          POSTGRES_DB: correlation
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U app -d correlation"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7
+        ports: ["6379:6379"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deps
+        working-directory: defensive-correlation-platform/services/api
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run migrations
+        run: |
+          psql postgresql://app:app@localhost:5432/correlation -f defensive-correlation-platform/migrations/001_init.sql
+          psql postgresql://app:app@localhost:5432/correlation -f defensive-correlation-platform/migrations/002_chain_engine.sql
+
+      - name: Run tests
+        env:
+          PYTHONPATH: defensive-correlation-platform/services/api
+          DB_URL: postgresql+psycopg://app:app@localhost:5432/correlation
+          REDIS_URL: redis://localhost:6379/0
+          OPA_URL: http://localhost:8181/v1/data/correlation/ingest
+        run: pytest defensive-correlation-platform/tests -q

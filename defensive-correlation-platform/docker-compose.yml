@@ -1,0 +1,40 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+      POSTGRES_DB: correlation
+    ports: ["5432:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
+
+  redis:
+    image: redis:7
+    ports: ["6379:6379"]
+
+  neo4j:
+    image: neo4j:5
+    environment:
+      NEO4J_AUTH: neo4j/password
+      NEO4J_PLUGINS: '["apoc"]'
+    ports: ["7474:7474", "7687:7687"]
+    volumes:
+      - neo4jdata:/data
+
+  api:
+    build: ./services/api
+    env_file: .env.example
+    ports: ["8000:8000"]
+    depends_on: [postgres, redis, neo4j]
+
+  worker:
+    build: ./services/worker
+    env_file: .env.example
+    depends_on: [postgres, redis, neo4j]
+
+volumes:
+  pgdata:
+  neo4jdata:
